@@ -34,11 +34,16 @@ export const AuthProvider = ({ children }) => {
     const signin = async (user) => {
         try {
             const res = await loginRequest(user);
+            setUser(res.data);
+            setErrors([]);
+            setIsAuthenticated(true);
             console.log(res);
 
         } catch (error) {
             console.error(error);
             setErrors(error.response.data);
+            setUser(null);
+            setIsAuthenticated(false);
         }
     }
 

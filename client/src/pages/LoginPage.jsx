@@ -1,13 +1,18 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "./context/AuthContext";
+import { useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
 
 function LoginPage() {
     const { register, handleSubmit, formState: { errors } } = useForm();
-    const { signin, errors: LoginErrors } = useAuth();
+    const { signin, errors: LoginErrors, isAuthenticated } = useAuth();
+    const navigate = useNavigate();
+    useEffect(() => {
+        if (isAuthenticated) navigate('/tasks');
+    }, [isAuthenticated]);
 
     const onSubmit = handleSubmit((async values => {
-        // console.log(values);
         const res = await signin(values);
     }))
 
@@ -30,6 +35,9 @@ function LoginPage() {
                 {errors.password && (<p className='text-red-500'>Pasword is required</p>)}
                 <button type='submit'>Login</button>
             </form>
+            <p className="flex gap-x-2 justify-between">
+            Don't have an account? <Link to="/register" className="text-sky-500">Sign Up</Link>
+            </p>
         </div>
     </div>)
 }
