@@ -9,7 +9,7 @@ function LoginPage() {
     const { signin, errors: LoginErrors, isAuthenticated } = useAuth();
     const navigate = useNavigate();
     useEffect(() => {
-        if (isAuthenticated) navigate('/add-task');
+        if (isAuthenticated) navigate('/tasks');
     }, [isAuthenticated]);
 
     const onSubmit = handleSubmit((async values => {
