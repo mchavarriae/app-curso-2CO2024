@@ -7,11 +7,10 @@ export const AuthContext = createContext();
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (!context) {
-        throw new Error("useAuth must be used within a AuthProvider");
+        throw new Error("useAuth must be used within an AuthProvider");
     }
     return context;
-}
-
+};
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
@@ -19,19 +18,19 @@ export const AuthProvider = ({ children }) => {
     const [errors, setErrors] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(()=>{
-        if(errors.length > 0){
-            const timer = setTimeout(()=>{
+    useEffect(() => {
+        if (errors.length > 0) {
+            const timer = setTimeout(() => {
                 setErrors([]);
             }, 5000);
             return () => clearTimeout(timer);
         }
     }, [errors]);
 
-    useEffect(()=>{
-        const checkLogin = async () =>{
+    useEffect(() => {
+        const checkLogin = async () => {
             const cookies = Cookie.get();
-            if(!cookies.token){
+            if (!cookies.token) {
                 setIsAuthenticated(false);
                 setLoading(false);
                 return;
@@ -39,42 +38,38 @@ export const AuthProvider = ({ children }) => {
 
             try {
                 const res = await verifyRequest(cookies.token);
-                console.log(res);
-                if(!res.data) return setIsAuthenticated(false);
+                if (!res.data) return setIsAuthenticated(false);
 
                 setIsAuthenticated(true);
                 setUser(res.data);
                 setLoading(false);
-
-                
             } catch (error) {
                 console.error(error);
                 setIsAuthenticated(false);
                 setLoading(false);
             }
-        }
+        };
         checkLogin();
+    }, []);
 
-    },[]);
-
-    const signup = async (user) => {
+    const signup = async (userData) => {
         try {
-            const res = await registerRequest(user);
-            console.log(res);
-            setUser(res.data);
-            setIsAuthenticated(true);    
+            const res = await registerRequest(userData);
+            // Mostrar un mensaje al usuario indicando que debe verificar su correo
+            setErrors(["Please check your email to verify your account."]);
+            setUser(null);
+            setIsAuthenticated(false);
         } catch (error) {
             console.error(error);
             setErrors(error.response.data);
             setUser(null);
             setIsAuthenticated(false);
         }
-    }
+    };
 
-    const signin = async (user) =>{
+    const signin = async (credentials) => {
         try {
-            const res = await loginRequest(user);
-            console.log(res);    
+            const res = await loginRequest(credentials);
             setUser(res.data);
             setIsAuthenticated(true);
         } catch (error) {
@@ -83,13 +78,13 @@ export const AuthProvider = ({ children }) => {
             setIsAuthenticated(false);
             console.error(error);
         }
-    }
+    };
 
-    const logout = () =>{
+    const logout = () => {
         Cookie.remove("token");
         setIsAuthenticated(false);
         setUser(null);
-    }
+    };
 
     return (
         <AuthContext.Provider value={{
@@ -103,5 +98,5 @@ export const AuthProvider = ({ children }) => {
         }}>
             {children}
         </AuthContext.Provider>
-    )
-}
+    );
+};

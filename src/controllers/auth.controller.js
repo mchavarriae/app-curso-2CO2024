@@ -7,47 +7,42 @@ import UserAccountVerificationLog from '../models/userAccountVerificationLog.js'
 import { TOKEN_SECRET } from "../config.js";
 
 export const register = async (req, res) => {
-    const { email, password, username } = req.body;
+    const { email, password, username, nombre, apellidos, telefono, direccion } = req.body;
     try {
         const userFound = await User.findOne({ email });
         if (userFound) return res.status(400).json(["The email is already registered"]);
-        
+
         const passwordHash = await bcrypt.hash(password, 10);
-        const newUser = new User({ username, email, password: passwordHash });
+        const newUser = new User({ username, email, password: passwordHash, nombre, apellidos, telefono, direccion });
         const userSaved = await newUser.save();
-        
-        // Generar un token de acceso
+
+        // Genera el token de acceso para la verificación
         const token = await createAccessToken({ id: userSaved._id });
 
-        // Enviar el correo de verificación
+        // Envía el correo de verificación
         await sendVerificationEmail(email, token);
 
-        // Crear un registro de verificación de cuenta
-        const logEntry = new UserAccountVerificationLog({
-            user: userSaved._id,
-            emailSentDate: new Date(),
+        res.status(200).json({
+            message: 'Registration successful. Please verify your email.',
+            user: {
+                id: userSaved._id,
+                username: userSaved.username,
+                email: userSaved.email,
+                nombre: userSaved.nombre,
+                apellidos: userSaved.apellidos,
+                telefono: userSaved.telefono,
+                direccion: userSaved.direccion,
+                createdAt: userSaved.createdAt,
+                updatedAt: userSaved.updatedAt
+            }
         });
-        await logEntry.save();
-
-        // Configurar la cookie con el token
-        res.cookie("token", token);
-
-        // Responder con los detalles del usuario
-        res.json({
-            id: userSaved._id,
-            username: userSaved.username,
-            email: userSaved.email,
-            createdAt: userSaved.createdAt,
-            updatedAt: userSaved.updatedAt,
-        });
-
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: error.message });
     }
-};
+}
 
-// Método para verificar la cuenta
+
 export const verifyAccount = async (req, res) => {
     const { token } = req.params;
 
@@ -56,15 +51,17 @@ export const verifyAccount = async (req, res) => {
         const user = await User.findById(decoded.id);
         if (!user) return res.status(400).send({ message: 'Invalid token' });
 
+        // Actualizar el estado de verificación del usuario
         user.isVerified = true;
         await user.save();
 
+        // Actualizar el registro en userAccountVerificationLog
         await UserAccountVerificationLog.findOneAndUpdate(
             { user: user._id },
             { verificationDate: new Date() }
         );
 
-        res.status(200).send({ message: 'Cuenta Verificada Correctamente' });
+        res.status(200).send({ message: 'Account verified successfully' });
     } catch (error) {
         console.error(error);
         res.status(500).send({ message: 'Internal server error' });
@@ -74,10 +71,15 @@ export const verifyAccount = async (req, res) => {
 export const login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        const userFound = await User.findOne({ email: email });
+        const userFound = await User.findOne({ email });
 
         if (!userFound) {
             return res.status(404).json(["The email doesn't exist"]);
+        }
+
+        // Verificar si la cuenta está verificada
+        if (!userFound.isVerified) {
+            return res.status(400).json(["Your account is not verified"]);
         }
 
         const isMatch = await bcrypt.compare(password, userFound.password);
@@ -98,13 +100,12 @@ export const login = async (req, res) => {
             email: userFound.email
         });
 
-
     } catch (error) {
         console.error(error);
         res.status(500).json([error.message]);
     }
+};
 
-}
 
 export const logout = async (req, res) => {
     res.cookie("token", "");
@@ -126,7 +127,7 @@ export const profile = async (req, res) => {
 }
 
 export const verify = async (req, res) => {
-    const { token } = req.cookies;
+    const { token } = req.query;
 
     if (!token) return res.status(401).json({ message: "Unauthorized" });
 
@@ -134,10 +135,16 @@ export const verify = async (req, res) => {
         if (err) return res.status(401).json({ message: "Unauthorized" });
 
         const userFound = await User.findById(user.id);
-
         if (!userFound) return res.status(401).json({ message: "Unauthorized" });
 
-        return res.json({ id: userFound._id });
+        userFound.isVerified = true;
+        await userFound.save();
 
+        await UserAccountVerificationLog.findOneAndUpdate(
+            { user: userFound._id },
+            { verificationDate: new Date() }
+        );
+
+        res.status(200).json({ message: "Account verified successfully" });
     });
 }

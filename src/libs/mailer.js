@@ -8,19 +8,19 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-export const sendVerificationEmail = (email, token) => {
+export const sendVerificationEmail = async (email, token) => {
+    const verificationLink = `http://localhost:4000/api/verify/${token}`;
     const mailOptions = {
         from: 'disenowebgrupo1@gmail.com',
         to: email,
         subject: 'Account Verification',
-        text: `Please verify your account by clicking the link: http://localhost:4000/api/verify/${token}`,
+        html: `<p>Please verify your account by clicking the link: <a href="${verificationLink}">${verificationLink}</a></p>`,
     };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.error('Error sending email:', error);
-        } else {
-            console.log('Email sent:', info.response);
-        }
-    });
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log('Verification email sent');
+    } catch (error) {
+        console.error('Error sending email:', error);
+    }
 };
