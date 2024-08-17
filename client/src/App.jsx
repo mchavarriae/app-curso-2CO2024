@@ -1,33 +1,38 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
+import { AuthProvider } from "./context/AuthContext";
 import HomePage from "./pages/HomePage";
-import ProfilePage from "./pages/ProfilePage";
+import TasksPage from "./pages/TasksPage";
 import TaskFormPage from "./pages/TaskFormPage";
-import TaskPage from "./pages/TaskPage";
+import ProfilePage from "./pages/Profile";
 import ProtectedRoute from "./pages/ProtectedRoute";
-import { AuthProvider } from "./pages/context/AuthContext";
-import { TaskProvider } from "./pages/context/TasksContext";
-
+import { TaskProvider } from "./context/TasksContext";
+import Navbar from "./components/Navbar";
 
 function App() {
   return (
     <AuthProvider>
       <TaskProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<HomePage />}></Route>
-          <Route path="/login" element={<LoginPage />}></Route>
-          <Route path="/register" element={<RegisterPage />}></Route>
-          <Route element={<ProtectedRoute />}>
-            <Route path="/tasks" element={<TaskPage />}></Route>
-            <Route path="/add-task" element={<TaskFormPage />}></Route>
-            <Route path="/task/:id" element={<TaskFormPage />}></Route>
-            <Route path="/profile" element={<ProfilePage />}></Route>
-          </Route>
-        </Routes>
-      </BrowserRouter>
+        <BrowserRouter>
+        <main className="container mx-auto px-10">
+        <Navbar/>
+          <Routes>
+            <Route path="/" element={<HomePage />}></Route>
+            <Route path="/login" element={<LoginPage />}></Route>
+            <Route path="/register" element={<RegisterPage />}></Route>
+            <Route element={<ProtectedRoute />}>
+              <Route path="/tasks" element={<TasksPage />}></Route>
+              <Route path="/add-task" element={<TaskFormPage />}></Route>
+              <Route path="/tasks/:id" element={<TaskFormPage />}></Route>
+              <Route path="/profile" element={<ProfilePage />}></Route>
+            </Route>
+          </Routes>
+          </main>
+        </BrowserRouter>
       </TaskProvider>
-    </AuthProvider>)
+    </AuthProvider>
+  )
 }
+
 export default App;
