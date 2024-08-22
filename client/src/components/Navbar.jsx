@@ -17,6 +17,9 @@ function Navbar() {
                         <li className="bg-indigo-500 px-4 rounded-sm">
                             <Link to="/add-task">Add Task</Link>
                         </li>
+                        <li className="bg-indigo-500 px-4 rounded-sm">
+                            <Link to="/add-projects">Add Project</Link>
+                        </li>
                         <li>
                             <Link to="/" onClick={() => {
                                 logout();
@@ -35,6 +38,8 @@ function Navbar() {
                     </>
 
                 )}
+
+
             </ul>
         </nav>
     )

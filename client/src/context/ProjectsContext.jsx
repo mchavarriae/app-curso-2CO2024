@@ -30,7 +30,7 @@ export function ProjectProvider({ children }) {
             console.log(res);
             setProjects(res.data);
         } catch (error) {
-
+            console.log(error);
         }
     }
 

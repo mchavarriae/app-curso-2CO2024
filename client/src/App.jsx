@@ -11,6 +11,7 @@ import { TaskProvider } from "./context/TasksContext";
 import { ProjectProvider } from "./context/ProjectsContext";
 import Navbar from "./components/Navbar";
 import ProjectPage from "./pages/ProjectPage";
+import ProjectFormPage from "./pages/ProjectFormPage";
 
 function App() {
   return (
@@ -30,6 +31,8 @@ function App() {
                   <Route path="/tasks/:id" element={<TaskFormPage />}></Route>
                   <Route path="/profile" element={<ProfilePage />}></Route>
                   <Route path="/projects" element={<ProjectPage />}></Route>
+                  <Route path="/projects/:id" element={<ProjectFormPage />}></Route>
+                  <Route path="/add-projects" element={<ProjectFormPage />}></Route>
                 </Route>
               </Routes>
             </main>
