@@ -1,4 +1,5 @@
 import Task from "../models/task.model.js"
+import Comment from "../models/comment.model.js";
 
 
 export const getTasks = async (req, res) => {
@@ -7,12 +8,13 @@ export const getTasks = async (req, res) => {
 };
 
 export const createTask = async (req, res) => {
-    const { title, description, date } = req.body;
+    const { title, description, date, comments } = req.body;
 
     const newTask = new Task({
         title,
         description,
         date,
+        comments,
         user: req.user.id
     });
 
@@ -20,6 +22,17 @@ export const createTask = async (req, res) => {
     res.json(savedTask);
 
 };
+
+/*export const getCommentsByTaskId = async (req, res) => {
+    try {
+        const comments = await Comment.find({ taskId: req.params.id });
+        if (!comments) return res.status(404).json({ message: "Comments not found!" });
+        res.json(comments);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error"});
+    }
+};*/
 
 export const deleteTask = async (req, res) => {
     const task = await Task.findByIdAndDelete(req.params.id);
@@ -39,3 +52,4 @@ export const getTask = async (req, res) => {
 
     res.json(task);
 };
+

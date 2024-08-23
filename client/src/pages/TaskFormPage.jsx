@@ -35,6 +35,7 @@ function TaskFormPage(){
             <form onSubmit={onSubmit}>
                 <input type="text" className="w-full bg-zinc-700 text-white px-4 py-2 rounded-md my-2" placeholder="Title" {...register("title")} autoFocus></input>
                 <textarea rows="3" className="w-full bg-zinc-700 text-white px-4 py-2 rounded-md my-2"  placeholder="Description" {...register("description")}></textarea>
+
                 <button>Save</button>
             </form>
         </div>

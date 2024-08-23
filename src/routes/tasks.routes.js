@@ -1,8 +1,11 @@
 import { Router } from "express";
 import { authRequired } from '../middlewares/validateToken.js';
 import { getTasks, getTask, updateTask, deleteTask, createTask } from "../controllers/tasks.controller.js";
+import commentRoutes from '../comentarios/comment.routes.js';  // Importar las rutas de comentarios
 
 const router = Router();
+
+router.use('/tasks', authRequired, commentRoutes); // Usar las rutas de comentarios como subrutas de /tasks
 
 router.get('/tasks', authRequired,getTasks);
 router.get('/tasks/:id', authRequired,getTask);
