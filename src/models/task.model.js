@@ -1,24 +1,37 @@
 import mongoose from "mongoose";
 
+const subtaskSchema = new mongoose.Schema({
+    title: {
+        type: String,
+        required: true
+    },
+    description: {
+        type: String,
+        required: true
+    }
+});
+
 const taskSchema = new mongoose.Schema(
     {
-        title:{
+        title: {
             type: String,
             required: true
         },
-        description:{
+        description: {
             type: String,
             required: true
         },
-        date:{
+        date: {
             type: Date,
             default: Date.now
         },
-        user:{
+        user: {
             type: mongoose.Schema.Types.ObjectId,
-            ref:  'User'
-        }
-    }, {timestamps: true}
+            ref: 'User'
+        },
+        subtasks: [subtaskSchema] // Añadimos el array de subtareas
+    }, 
+    { timestamps: true }
 );
 
 export default mongoose.model('Task', taskSchema);

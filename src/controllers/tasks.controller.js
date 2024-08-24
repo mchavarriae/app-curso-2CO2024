@@ -39,3 +39,40 @@ export const getTask = async (req, res) => {
 
     res.json(task);
 };
+
+export const addSubtask = async (req, res) => {
+    const { title, description } = req.body;
+    const task = await Task.findById(req.params.taskId);
+
+    if (!task) return res.status(404).json({ message: "Task not found" });
+
+    task.subtasks.push({ title, description });
+    await task.save();
+    res.json(task);
+};
+
+export const deleteSubtask = async (req, res) => {
+    const task = await Task.findById(req.params.taskId);
+    if (!task) return res.status(404).json({ message: "Task not found" });
+
+    task.subtasks.id(req.params.subtaskId).remove();
+    await task.save();
+    res.json(task);
+};
+
+
+export const updateSubtask = async (req, res) => {
+    const { title, description } = req.body;
+    const task = await Task.findById(req.params.taskId);
+
+    if (!task) return res.status(404).json({ message: "Task not found" });
+
+    const subtask = task.subtasks.id(req.params.subtaskId);
+    if (!subtask) return res.status(404).json({ message: "Subtask not found" });
+
+    subtask.title = title || subtask.title;
+    subtask.description = description || subtask.description;
+
+    await task.save();
+    res.json(task);
+};
